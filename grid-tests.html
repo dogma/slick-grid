@@ -4,6 +4,7 @@
 <script language="JavaScript" src="lib/jquery-ui-1.7.custom.js"></script>
 <script language="JavaScript" src="ui.grid.js"></script>
 <script language="JavaScript" src="slick.model.js"></script>
+<script language="JavaScript" src="slick.editors.js"></script>
 
 <style>
 .column {
@@ -61,7 +62,8 @@
 }
 
 .ui-grid-cell {
-	border-bottom: 1px dashed rgb(180, 190, 210);
+	border-bottom: 1px dotted rgb(180, 190, 210);
+	border-right: 1px dotted rgb(180, 190, 210);
 	padding: 2px;
 }
 
@@ -83,7 +85,7 @@ body {
 
 	var data = new Array(); 
 
-	for (var i=0; i<50; i++) {
+	for (var i=0; i<1000; i++) {
 		var d = (data[i] = {});
 		
 		d["id"] = "id_" + i;
@@ -125,34 +127,57 @@ body {
 		            	title: "Column 1",
 		            	width: 80,
 		            	field: "column1"
-<!--		        	},-->
-<!--		        	{-->
-<!--		            	id: 'column2',-->
-<!--		            	title: "Column 2",-->
-<!--		            	width: 80,-->
-<!--		            	field: "column2",-->
-<!--		            	align: 'center'-->
-<!--		        	},-->
-<!--		        	{-->
-<!--		            	id: 'column3',-->
-<!--		            	title: "Column 3",-->
-<!--		            	width: 80,-->
-<!--		            	field: "column3",-->
-<!--		            	align: 'right'-->
-<!--		        	},-->
-<!--		        	{-->
-<!--		            	id: 'column4',-->
-<!--		            	title: "Yellow",-->
-<!--		            	width: 80,-->
-<!--		            	field: "effortDriven",-->
-<!--		            	align: 'right'-->
-<!--		        	},-->
-<!--		        	{-->
-<!--		            	id: 'column5',-->
-<!--		            	title: "Purple",-->
-<!--		            	width: 80,-->
-<!--		            	field: "finish",-->
-<!--		            	align: 'right'-->
+		        	},
+		        	{
+		            	id: 'column2',
+		            	title: "Column 2",
+		            	width: 80,
+		            	field: "column2",
+		            	align: 'center',
+		            	formatter:GraphicalPercentCompleteCellFormatter,
+		            	editor:PercentCompleteCellEditor,
+		            },
+		        	{
+		            	id: 'column3',
+		            	title: "Column 3",
+		            	width: 80,
+		            	field: "column3",
+		            	align: 'right'
+		        	},
+		        	{
+		            	id: 'column4',
+		            	title: "Yellow",
+		            	width: 80,
+		            	field: "effortDriven",
+		            	align: 'right'
+		        	},
+		        	{
+		            	id: 'column5',
+		            	title: "Purple",
+		            	width: 80,
+		            	field: "finish",
+		            	align: 'right'
+		        	},
+		        	{
+		            	id: 'column6',
+		            	title: "Column 3",
+		            	width: 80,
+		            	field: "column3",
+		            	align: 'right'
+		        	},
+		        	{
+		            	id: 'column7',
+		            	title: "Yellow",
+		            	width: 80,
+		            	field: "effortDriven",
+		            	align: 'right'
+		        	},
+		        	{
+		            	id: 'column8',
+		            	title: "Purple",
+		            	width: 80,
+		            	field: "finish",
+		            	align: 'right'
 		        	}
 		],
 		data: dataView.rows

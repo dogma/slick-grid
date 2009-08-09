@@ -19,12 +19,18 @@
 			innerHeader: 'ui-grid-innerHeader',
 			column: 'ui-grid-column',
 			columnHeader: 'ui-grid-column-header',
-			cell: 'ui-grid-cell'
+			cell: 'ui-grid-cell',
+			row: 'ui-grid-row'
 		};
-		
+	
 	var columnDef = '<div class="'+css.column+'"></div>';
 	var columnHeaderDef = '<div class="'+css.columnHeader+'"></div>';
 	var cellDef = '<div class="'+css.cell+'"></div>';
+	var def = '<div style="overflow: hidden;" class="ui-grid-header">'
+		+'<div style="width: 10000px;" class="ui-grid-innerHeader"></div></div>'
+		+'<div style="overflow: scroll;" class="ui-grid-body">'
+		+'<div style="width: 10000px; border: 0px; display: inline-block; margin: 0px; padding: 0px;" class="ui-grid-innerBody">'
+		+'</div></div>';
 	
 	var column = {
 		_init: function () {
@@ -110,11 +116,9 @@
 			var currentCells = this._getData('currentCells');
 			var cellCache = this._getData('cellCache');
 			if(i in currentCells) {
-				console.log("Already present");
 				return;
 			}
 			
-			console.log("progressing");
 			var cell = null;
 			if(! i in cellCache) {
 				this.buildCell(i);
@@ -123,8 +127,11 @@
 //			console.log("STUFF");
 //			console.log(this.element);
 //			console.log(this.element[0])
-			console.log("adding");
-			this._addChild(cellCache[i],cellCache[i+1]);
+			if(position === true) {
+				this._addChild(cellCache[i],cellCache[i+1]);
+			} else {
+				this._addChild(cellCache[i]);
+			}
 
 			cellCache[i].style.height = this._getData('finalHeight');
 
@@ -179,15 +186,9 @@
 	});
 	$.ui.gridColumn.getter = ["width","body","header"];
 	
-	var def = '<div style="overflow: hidden;" class="ui-grid-header">'
-		+'<div style="width: 10000px;" class="ui-grid-innerHeader"></div></div>'
-		+'<div style="overflow: scroll;" class="ui-grid-body">'
-		+'<div style="width: 10000px; border: 0px; display: inline-block; margin: 0px; padding: 0px;" class="ui-grid-innerBody">'
-		+'</div></div>';
-	
 	var grid = {
 		_init: function () {
-		console.log("Building");
+			console.log("Building");
 			var gid = "uigrid_" + Math.round(1000000 * Math.random());
 			this._setData('gid',gid);
 			var self = this;
@@ -199,7 +200,7 @@
 				.attr("hideFocus",true)
 				.css("outline",0)
 				.addClass(gid);
-			
+
 			var body = $(self.element).find('.'+css.body+':first');
 			this._setData('el_body',body);
 			var header = $(self.element).find('.'+css.header+':first');
@@ -208,131 +209,207 @@
 			this._setData('el_innerBody',innerBody);
 			var innerHeader = $(self.element).find('.'+css.innerHeader+':first');
 			this._setData('el_innerHerader',innerHeader);
-			
+			var bodySpacer = document.createElement('div');
+			bodySpacer.style.padding = '0px';
+			bodySpacer.style.margin = '0px';
+			bodySpacer.style.border = '0px';
+			bodySpacer.style.height = '0px';
+			bodySpacer.style.width = '0px';
+			this._setData('el_bodySpacer',bodySpacer);
+			innerBody[0].appendChild(bodySpacer);
+
 			this._setData('viewport',{
 				body: $(body).position(),
 				innerBody: $(innerBody).position()
 			});
-			
+
 			$(innerHeader).css('position','relative');
-			
+
 			if(this._getData('height') != null) {
 				$(this.element).height(this._getData('height'));
 			} else {
 				this._setData('height',$(this.element).height());
 			}
-			
+
 			if(this._getData('width') != null) {
 				$(this.element).width(this._getData('width'));
 			} else {
 				this._setData('width',$(this.element).width());
 			}
-			
+
 			$(body).height(
 					$(self.element).height()
 					-$(header).outerHeight()
 					-parseInt($(body).css('border-top-width'))
 					-parseInt($(body).css('border-bottom-width'))
 			);
-			
+
 			this._setData('header',header);
-	
+
 			var headerOffset = $(innerHeader).position();
 			var tempOffset = $(header).position();
 			headerOffset.top -= tempOffset.top;
 			headerOffset.left -= tempOffset.left;
-			
+
 			self._setData('headerOffset',headerOffset);
 			this._setData('currentView',this._visibleRecords());
 
 			$(body).bind('scroll',function () {
 				p = $(innerBody).position();
 				$(innerHeader).css('left',p.left-$(header).position().left-headerOffset.left);
-				self._adjustColumns();
+//				self._adjustColumns();
+				self._renderRows();
 			});
-			
-			var columns = self._getData('columns');
-			for(var i in columns) {
-				self._addColumn(columns[i]);
-			}
-			
-			this._setColumnHeight();
+
+//			var columns = self._getData('columns');
+//			for(var i in columns) {
+//				self._addColumn(columns[i]);
+//			}
+//			
+//			this._setColumnHeight();
 			this.render();
 		},
 		_adjustColumns: function () {
 			var columns = this._getData('columnArr');
 			currentView = this._getData('currentView');
 			vp = this._visibleRecords();
-			
+
 			if(vp.first == currentView.first && vp.last == currentView.last) {
 				return;
 			}
-			
+
 			console.log(currentView);
 			console.log(vp);
 
 			for(var k in columns) {
 				$(columns[k]).gridColumn('view',vp);
 			}
-			
-			console.log("Here");
+
+			this._setData('currentView',vp);
+		},
+		_renderRows: function () {
+			var currentView = this._getData('currentView');
+			var innerBody = this._getData('el_innerBody');
+			var bodySpacer = this._getData('el_bodySpacer');
+			vp = this._visibleRecords();
+
+//			console.log(vp);
+//			console.log(currentView);
+
+			if(vp.first == currentView.first && vp.last == currentView.last) {
+				return;
+			}
+
+			if(currentView.first > vp.last || currentView.last < vp.first) {
+				while(bodySpacer.nextSibling) {
+					innerBody[0].removeChild(bodySpacer.nextSibling);
+				}
+				
+				for(var i = vp.first; i < vp.last; i++) {
+					innerBody[0].appendChild(this._getRow(i));
+				}
+				
+			} else  {
+	
+				var top = currentView.first - vp.first;
+				var bottom = vp.last - currentView.last;
+				if(top < 0) {
+					//If it's negative we need to remove rows.
+					while(top < 0 && bodySpacer.nextSibling) {
+						innerBody[0].removeChild(bodySpacer.nextSibling);
+						top++;
+					}
+				} else if(top > 0) {
+					//If it's position we need to add them...
+					for(var i = currentView.first; i >= vp.first; i--) {
+						innerBody[0].insertBefore(this._getRow(i),bodySpacer.nextSibling);
+					}
+					
+				}
+				
+				if(bottom < 0) {
+					while(bottom < 0 && bodySpacer.nextSibling) {
+						innerBody[0].removeChild(innerBody[0].lastChild);
+						bottom++;
+					}
+				} else if (bottom > 0) {
+					for(var i = currentView.last; i < vp.last; i++) {
+						innerBody[0].appendChild(this._getRow(i));
+					}
+				}
+			}
+
+			bodySpacer.style.height = (vp.first)*this._getData('rowHeight');
 			this._setData('currentView',vp);
 			
 		},
-		_addColumn: function (columnOpts, after) {
-			var col = $(columnDef);
-			columnOpts.cssSelector = this._getData('gid')+"-column-"+column.id
-			columnOpts.rowHeight = this._getData('rowHeight');
-			columnOpts.data = this._getData('data');
-			$(col).gridColumn(columnOpts);
-			
-			columns = this._getData('columnArr');
-			columns.push(col);
-			console.log(columns.length);
-			
-			var innerBody = $(self.element).find('.'+css.innerBody+':first');
-			$(innerBody).append($(col).gridColumn('body'));
-			var innerHeader = $(self.element).find('.'+css.innerHeader+':first');
-			$(innerHeader).append($(col).gridColumn('header'));
-			this._updateBodyWidth();
-		},
-		_setColumnHeight: function () {
-			var body = this._getData('el_body');
-			var buffer = this._getData('buffer')*2*this._getData('rowHeight');
-			
-			for(var k in columns) {
-				$(columns[k]).height(buffer+body.height());
-			}
-		},
 		_buildData: function () {
 			var data = this._getData('data');
-			var columns = this._getData('columnArr');
+//			var columns = this._getData('columnArr');
 			vp = this._visibleRecords();
-			
+			var innerBody = this._getData('el_innerBody');
+
+			console.log(vp);
 			for(var i = vp.first; i < vp.last; i++) {
-				for(var k in columns) {
-					$(columns[k]).gridColumn('add',data[i]);
-				}
+				row = this._renderRow(i);
+				innerBody[0].appendChild(row);
 			}
-			
+
 			//Update the 'actual' height of the view port...
 			var recordHeight = this._getData('rowHeight');
 			var dataHeight = recordHeight*data.length;
-			console.log("Total height: "+dataHeight);
 			$(this.element).find('.'+css.innerBody).height(dataHeight);
+			this._updateBodyWidth();
+			console.log("Total height: "+dataHeight);
+		},
+		_getRow: function (i) {
+			if(i in this._getData('rowCache')) {
+				return this._getData('rowCache')[i];
+			} else {
+				return this._renderRow(i);
+			}
+		},
+		_renderRow: function (i) {
+			var row = document.createElement('div');
+			row.className = css.row;
+			row.row = i;
+			var rowData = '';
+
+			var columns = this._getData('columns');
+
+			var d = this._getData('data')[i];
+
+			for(var c in columns) {
+				var col = columns[c];
+				var cell = '<div class="'+css.cell+'" style="display: inline-block; overflow: hidden; margin: 0px; padding: 0px; width: '+col.width+'; height: '+this._getData('rowHeight')+'px;" cell="'+c+'" >';
+				if('formatter' in col) {
+					cell += col.formatter(i, c, d[col.field], col, d);
+				} else {
+					cell += d[col.field] == undefined || d[col.field] == null ? '' : d[col.field];
+				}
+				cell += '</div>';
+				rowData += cell;
+			}
+
+			row.innerHTML = rowData;
+			this._getData('rowCache')[i] = row;
+			return row;
 		},
 		_visibleRecords: function () {
 			vp = this._getData('viewport');
 
 			var body = this._getData('el_body');
-			
+
 			var scrollTop = body[0].scrollTop;
 			var rowHeight = this._getData('rowHeight');
+			var buffer = this._getData('buffer');
+
+			var firstRecord = Math.floor(scrollTop/rowHeight) - buffer;
 			
-			var firstRecord = Math.floor(scrollTop/rowHeight);
 			firstRecord = firstRecord < 0 ? 0 : firstRecord;
 			firstRecord = this._getData('data').length < firstRecord ? this._getData('data').length : firstRecord; 
-			var lastRecord = Math.floor(((scrollTop+$(this.body).height())/rowHeight));
+			var lastRecord = Math.floor(((scrollTop+$(this.body).height())/rowHeight)) + buffer;
+	
 			lastRecord = this._getData('data').length > lastRecord ? lastRecord: this._getData('data').length; 
 
 //			console.log("f:"+firstRecord+", l:"+lastRecord+", o:"+(scrollTop % rowHeight));
@@ -344,21 +421,16 @@
 			
 			return currentView;
 		},
-		_clearGrid: function () {
-			
-		},
-		_addRecord: function (record) {
-			
-		},
 		_updateBodyWidth: function () {
 			var bodyWidth = 0;
-			var body = $(self.element).find('.'+css.body+':first');
-			var innerBody = $(self.element).find('.'+css.innerBody+':first');
-			
-			$(body).find('.'+css.column).each(function (el) {
-				bodyWidth += $(this).outerWidth();
-			});
+			var innerBody = this._getData('el_innerBody');
+			var columns = this._getData('columns');
 
+			for(var c in columns) {
+				bodyWidth += columns[c].width+1;
+			};
+
+			console.log("Total Width: "+bodyWidth);
 			$(innerBody).width(bodyWidth);
 		},
 		render: function () {
@@ -367,11 +439,13 @@
 	};
 	
 	$.widget("ui.grid",grid);
-	
+//	$.ui.grid.getter = ["render"];
+
 	$.extend($.ui.grid,{
 		version: "0.1",
 		defaults: {
-			buffer: 5,
+			rowCache: [],
+			buffer: 2,
 			columns: [], //Column definitions. This is passed to each column (along with rowHeight)
 			columnArr: [],
 			data: null,
@@ -380,6 +454,7 @@
 				top: 0,
 				left: 0
 			},
+			rows: [],
 			rowHeight: 25,
 			height: null,
 			width: null

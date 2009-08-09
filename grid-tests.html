@@ -1,0 +1,163 @@
+<html>
+<head>
+<script language="JavaScript" src="lib/jquery-1.3.2.js"></script>
+<script language="JavaScript" src="lib/jquery-ui-1.7.custom.js"></script>
+<script language="JavaScript" src="ui.grid.js"></script>
+<script language="JavaScript" src="slick.model.js"></script>
+
+<style>
+.column {
+	display: inline-block;
+	margin: 0px;
+	padding: 0px;
+	height: 800px;
+	width: 100px;
+	float: left;
+	overflow: hidden;
+	border-right: 1px dashed rgb(200, 200, 200);
+}
+
+.header {
+	display: inline-block;
+	width: 100px;
+	height: 25px;
+	float: left;
+	overflow: hidden;
+	border-right: 1px solid rgb(150, 150, 150);
+	background-color: rgb(180, 180, 180);
+}
+
+#header {
+	height: 25px;
+	overflow: 0px;
+}
+
+#innerHeader {
+	border: 0px;
+	padding: 0px;
+	margin: 0px;
+	position: relative;
+}
+
+#body {padding 5px;
+	
+}
+
+.ui-grid-header {
+	border: 1px solid rgb(150, 160, 180);
+	background-color: rgb(170, 180, 200);
+	height: 15px;
+}
+
+.ui-grid-column-header {
+	border-right: 1px solid rgb(150, 160, 180);
+	color: rgb(255, 255, 255);
+	height: 15px;
+	float: left;
+}
+
+.ui-grid-column {
+	border-right: 1px dashed rgb(150, 160, 180);
+}
+
+.ui-grid-cell {
+	border-bottom: 1px dashed rgb(180, 190, 210);
+	padding: 2px;
+}
+
+body {
+	font-size: 8pt;
+	font-family: tahoma, verdana, arial, sans, sans-serif;
+}
+
+.ui-grid-body {
+	border: 1px solid rgb(150, 160, 180);
+	border-bottom: 0px;
+}
+</style>
+</head>
+<body>
+
+<div id="grid2"></div>
+<script><!--
+
+	var data = new Array(); 
+
+	for (var i=0; i<50; i++) {
+		var d = (data[i] = {});
+		
+		d["id"] = "id_" + i;
+		d["title"] = "Task " + i;
+		d["column1"] = "5 days";
+		d["column2"] = Math.round(Math.random() * 100);
+		d["column3"] = "01/01/2009";
+		d["finish"] = "01/05/2009";
+		d["effortDriven"] = (i % 5 == 0);
+	}
+	
+	// initialize the model
+	var dataView = new DataView();
+	dataView.beginUpdate();
+	dataView.setItems(data);
+//	dataView.setFilter(myFilter);
+	dataView.endUpdate();
+
+
+	$('#grid2').grid({
+		rowHeight: 20,
+		height: 400,
+		width: 400,
+		columns: [
+		        	{
+		            	id: 'id',
+		            	title: "ID",
+		            	width: 80,
+		            	field: "id"
+		        	},
+		        	{
+		            	id: 'title',
+		            	title: "Title",
+		            	width: 80,
+		            	field: "title"
+		        	},
+		        	{
+		            	id: 'column1',
+		            	title: "Column 1",
+		            	width: 80,
+		            	field: "column1"
+<!--		        	},-->
+<!--		        	{-->
+<!--		            	id: 'column2',-->
+<!--		            	title: "Column 2",-->
+<!--		            	width: 80,-->
+<!--		            	field: "column2",-->
+<!--		            	align: 'center'-->
+<!--		        	},-->
+<!--		        	{-->
+<!--		            	id: 'column3',-->
+<!--		            	title: "Column 3",-->
+<!--		            	width: 80,-->
+<!--		            	field: "column3",-->
+<!--		            	align: 'right'-->
+<!--		        	},-->
+<!--		        	{-->
+<!--		            	id: 'column4',-->
+<!--		            	title: "Yellow",-->
+<!--		            	width: 80,-->
+<!--		            	field: "effortDriven",-->
+<!--		            	align: 'right'-->
+<!--		        	},-->
+<!--		        	{-->
+<!--		            	id: 'column5',-->
+<!--		            	title: "Purple",-->
+<!--		            	width: 80,-->
+<!--		            	field: "finish",-->
+<!--		            	align: 'right'-->
+		        	}
+		],
+		data: dataView.rows
+	});
+
+--></script>
+</body>
+</html>
